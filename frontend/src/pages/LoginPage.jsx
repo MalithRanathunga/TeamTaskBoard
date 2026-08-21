@@ -8,17 +8,15 @@ const LoginPage = () => {
       {/* Main Container */}
       <div className="w-full h-full max-w-300 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch">
 
-        {/* Left Visual Panel */}
         <div className="lg:w-[45%] w-full h-full rounded-[28px] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden bg-linear-to-br from-[#00d2ff] via-[#1a44e8] to-[#c084fc] shrink-0 shadow-lg">
 
-          {/* Top Decorative Asterisk */}
           <div className="z-10">
             <span className="text-white text-3xl font-bold leading-none select-none">
               ✱
             </span>
           </div>
 
-          {/* Ambient Glow Elements */}
+          {/* Ambient glow element */}
           <div className="absolute -top-16 -left-16 w-56 h-56 bg-sky-300/40 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute top-1/3 -right-20 w-64 h-64 bg-fuchsia-400/40 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-10 left-10 w-72 h-72 bg-blue-900/50 rounded-full blur-2xl pointer-events-none" />
@@ -34,10 +32,8 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Right Form Panel */}
         <div className="lg:w-[55%] w-full flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-2">
 
-          {/* Top Brand Asterisk */}
           <div className="text-indigo-600 text-2xl font-bold leading-none mb-3 select-none">
             ✱
           </div>
@@ -50,9 +46,9 @@ const LoginPage = () => {
             Access your tasks, notes and projects anytime, anywhere.
           </p>
 
-          {/* Static Form */}
+          {/* Form */}
           <form className="space-y-4 max-w-md w-full">
-            {/* Email Input */}
+            {/* Email */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-800 tracking-wide">
                 Your email
@@ -64,7 +60,7 @@ const LoginPage = () => {
               />
             </div>
 
-            {/* Password Input */}
+            {/* Password */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-800 tracking-wide">
                 Password
@@ -85,7 +81,7 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Action Button */}
+            {/* Sign in Button */}
             <Link
               to="/home"
               className="w-full block text-center py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] mt-4! no-underline"
@@ -94,7 +90,7 @@ const LoginPage = () => {
             </Link>
           </form>
 
-          {/* Social Divider */}
+          {/* Social sign in buttons */}
           <div className="relative my-5 max-w-md flex items-center justify-center">
             <div className="border-t border-slate-200 w-full" />
             <span className="bg-white px-3 text-[11px] text-slate-400 font-medium absolute uppercase tracking-wider">

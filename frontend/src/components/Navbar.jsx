@@ -13,7 +13,7 @@ const Navbar = ({ onAddTaskClick }) => {
   return (
     <header className="h-16 w-full bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 select-none">
 
-      {/* 1. Left Section: Board Title & Live Status */}
+      {/* Board Title & Live Status */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-lg font-black text-indigo-600 leading-none">✱</span>
@@ -28,7 +28,7 @@ const Navbar = ({ onAddTaskClick }) => {
         </span>
       </div>
 
-      {/* 2. Middle Section: Search Bar */}
+      {/* Search Bar */}
       <div className="flex-1 max-w-md mx-4 hidden md:block">
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -42,7 +42,7 @@ const Navbar = ({ onAddTaskClick }) => {
         </div>
       </div>
 
-      {/* 3. Right Section: Filters, Avatars, Actions */}
+      {/* Filters, Avatars, Actions */}
       <div className="flex items-center gap-3 shrink-0">
 
         {/* Filter Trigger Button */}
@@ -80,7 +80,7 @@ const Navbar = ({ onAddTaskClick }) => {
           <Share2 className="w-4 h-4" />
         </button>
 
-        {/* Primary CTA: Add Task */}
+        {/* Add Task */}
         <button
           type="button"
           onClick={onAddTaskClick || (() => alert("Open New Task Modal"))}

@@ -6,7 +6,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [activeBoard, setActiveBoard] = useState("board-1");
 
-  // Mock static data for boards and members
+  // Mock data
   const boards = [
     { id: "board-1", name: "Sprint 1 Workspace", count: 9 },
     { id: "board-2", name: "UI/UX Redesign", count: 4 }
@@ -21,7 +21,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 sm:w-72 h-screen bg-white border-r border-slate-200/80 flex flex-col justify-between p-4 shrink-0 select-none">
 
-      {/* Top Section: Workspace Header & Primary CTA */}
+      {/* Workspace Header */}
       <div className="flex flex-col gap-5">
 
         {/* Workspace Brand Dropdown */}
@@ -38,7 +38,7 @@ const Sidebar = () => {
           <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 shrink-0 transition-transform" />
         </div>
 
-        {/* Create Board CTA */}
+        {/* Create Board */}
         <button
           type="button"
           onClick={() => alert("Open Create Board Modal")}
@@ -51,7 +51,7 @@ const Sidebar = () => {
         {/* Navigation Sections */}
         <div className="flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-320px)] pr-1">
 
-          {/* 1. Quick Views */}
+          {/* Quick Views */}
           <div>
             <span className="px-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Views
@@ -67,7 +67,7 @@ const Sidebar = () => {
             </div>
           </div>
 
-          {/* 2. Existing Boards List */}
+          {/* Existing Boards List */}
           <div>
             <div className="flex items-center justify-between px-2 mb-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -105,7 +105,7 @@ const Sidebar = () => {
             </div>
           </div>
 
-          {/* 3. Board Members */}
+          {/* Board Members */}
           <div>
             <div className="flex items-center justify-between px-2 mb-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -150,7 +150,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Bottom Section: Settings & User Profile Card */}
+      {/* Settings & User Profile Card */}
       <div className="border-t border-slate-100 pt-3 flex flex-col gap-2">
         <button
           type="button"

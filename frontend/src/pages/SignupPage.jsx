@@ -8,10 +8,8 @@ const SignupPage = () => {
       {/* Main Container */}
       <div className="w-full h-full max-w-300 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch">
 
-        {/* Left Visual Panel */}
         <div className="lg:w-[45%] w-full h-full rounded-[28px] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden bg-linear-to-br from-[#00d2ff] via-[#1a44e8] to-[#c084fc] shrink-0 shadow-lg">
 
-          {/* Top Decorative Asterisk */}
           <div className="z-10">
             <span className="text-white text-3xl font-bold leading-none select-none">
               ✱
@@ -34,10 +32,8 @@ const SignupPage = () => {
           </div>
         </div>
 
-        {/* Right Form Panel */}
         <div className="lg:w-[55%] w-full flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-2">
 
-          {/* Top Brand Asterisk */}
           <div className="text-indigo-600 text-2xl font-bold leading-none mb-3 select-none">
             ✱
           </div>
@@ -50,9 +46,9 @@ const SignupPage = () => {
             Get started in seconds to organize, track, and deliver your team's projects.
           </p>
 
-          {/* Static Form */}
+          {/* Form */}
           <form className="space-y-3 max-w-md w-full">
-            {/* Full Name Input */}
+            {/* Full Name */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-800 tracking-wide">
                 Full name
@@ -64,7 +60,7 @@ const SignupPage = () => {
               />
             </div>
 
-            {/* Email Input */}
+            {/* Email */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-800 tracking-wide">
                 Your email
@@ -76,7 +72,7 @@ const SignupPage = () => {
               />
             </div>
 
-            {/* Password Input */}
+            {/* Password */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-800 tracking-wide">
                 Password
@@ -97,7 +93,7 @@ const SignupPage = () => {
               </div>
             </div>
 
-            {/* Action Button */}
+            {/* Sign up Button */}
             <Link
               to="/home"
               className="w-full block text-center py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] mt-3! no-underline"
@@ -106,7 +102,7 @@ const SignupPage = () => {
             </Link>
           </form>
 
-          {/* Social Divider */}
+          {/* Social sign up buttons */}
           <div className="relative my-4 max-w-md flex items-center justify-center">
             <div className="border-t border-slate-200 w-full" />
             <span className="bg-white px-3 text-[11px] text-slate-400 font-medium absolute uppercase tracking-wider">

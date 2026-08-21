@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Plus, MoreVertical, Calendar, MessageSquare, Paperclip, CheckCircle2, Clock, AlertCircle, X, ChevronRight, ChevronLeft } from "lucide-react";
 
+// Mock task data
 const initialTasks = [
   {
     id: "task-1",

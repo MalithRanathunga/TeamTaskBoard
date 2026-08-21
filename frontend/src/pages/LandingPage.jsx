@@ -1,13 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 
 const LandingPage = () => {
   return (
-    <div className="h-screen w-screen bg-white text-slate-800 font-sans overflow-hidden flex flex-col justify-between p-6 lg:p-10">
+    <div className="h-screen w-screen bg-white text-slate-800 font-sans overflow-hidden flex flex-col justify-between px-6 pt-6 pb-3 lg:px-10 lg:pt-8 lg:pb-4">
 
       {/* 1. Navigation */}
-      <header className="w-full max-w-300 mx-auto flex items-center justify-between shrink-0">
+      <header className="w-full max-w-6xl mx-auto flex items-center justify-between shrink-0">
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2 text-indigo-600 no-underline select-none">
           <span className="text-2xl font-black leading-none">✱</span>
@@ -16,7 +15,7 @@ const LandingPage = () => {
           </span>
         </Link>
 
-        {/* Auth CTA Buttons */}
+        {/* Auth Buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             to="/login"
@@ -33,16 +32,14 @@ const LandingPage = () => {
         </div>
       </header>
 
-      {/* 2. Main Hero Content */}
-      <main className="w-full max-w-225 mx-auto flex-1 flex flex-col justify-center items-center text-center my-auto py-6">
+      {/* 2. Main Content */}
+      <main className="w-full max-w-4xl mx-auto flex-1 min-h-0 flex flex-col justify-center items-center text-center my-auto py-2">
 
-        {/* Top Feature Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-6 select-none">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-4 select-none">
           <span className="text-xs">✱</span>
           <span>Next-Gen Agile Workspace</span>
         </div>
 
-        {/* Main Headline */}
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-tight max-w-3xl">
           Your shared space for effortless{" "}
           <span className="bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -51,34 +48,16 @@ const LandingPage = () => {
           and team clarity.
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-slate-500 text-sm sm:text-base max-w-xl mt-4 mb-8 leading-relaxed">
+        <p className="text-slate-500 text-sm sm:text-base max-w-xl mt-4 leading-relaxed">
           Access your sprint boards, track tasks from To Do to Done, and collaborate with your team in real time without friction.
         </p>
 
-        {/* Call to Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
-          <Link
-            to="/signup"
-            className="w-full sm:w-auto px-7 py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group no-underline active:scale-95"
-          >
-            <span>Start Free Workspace</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <Link
-            to="/board"
-            className="w-full sm:w-auto px-7 py-3 bg-slate-100/90 hover:bg-slate-200/80 text-slate-700 font-semibold rounded-xl text-sm transition-all text-center no-underline active:scale-95"
-          >
-            Explore Board Demo
-          </Link>
-        </div>
-
       </main>
 
-      {/* 3. Minimal Single-Line Footer */}
-      <footer className="w-full max-w-300 mx-auto border-t border-slate-100 pt-4 flex items-center justify-between text-xs text-slate-400 shrink-0">
+      {/* Footer */}
+      <footer className="w-full max-w-6xl mx-auto border-t border-slate-100 pt-2 flex items-center justify-between text-[11px] text-slate-400 shrink-0 leading-none">
         <div className="flex items-center gap-1 font-bold text-slate-600">
-          <span className="text-indigo-600">✱</span> CollabBoard
+          <span className="text-indigo-600 text-xs">✱</span> CollabBoard
         </div>
         <p>© 2026 CollabBoard. All rights reserved.</p>
       </footer>
