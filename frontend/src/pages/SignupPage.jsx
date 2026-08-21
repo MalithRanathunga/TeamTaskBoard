@@ -99,7 +99,7 @@ const SignupPage = () => {
 
             {/* Action Button */}
             <Link
-              to="/board"
+              to="/home"
               className="w-full block text-center py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] mt-3! no-underline"
             >
               Sign Up
