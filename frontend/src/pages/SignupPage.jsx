@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Eye, Kanban, Asterisk } from "lucide-react";
+import { Eye } from "lucide-react";
 
-const LoginPage = () => {
+const SignupPage = () => {
   return (
     <div className="h-screen w-screen bg-white flex items-center justify-center p-3 sm:p-5 font-sans overflow-hidden">
       {/* Main Container */}
@@ -46,12 +46,24 @@ const LoginPage = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Create an account
           </h1>
-          <p className="text-slate-500 text-xs sm:text-sm mt-1.5 mb-5 leading-relaxed max-w-md">
-            Get started in seconds to organize, track and deliver your team's projects.
+          <p className="text-slate-500 text-xs sm:text-sm mt-1 mb-4 leading-relaxed max-w-md">
+            Get started in seconds to organize, track, and deliver your team's projects.
           </p>
 
           {/* Static Form */}
-          <form className="space-y-4 max-w-md w-full">
+          <form className="space-y-3 max-w-md w-full">
+            {/* Full Name Input */}
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-800 tracking-wide">
+                Full name
+              </label>
+              <input
+                type="text"
+                placeholder="John Doe"
+                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
+              />
+            </div>
+
             {/* Email Input */}
             <div className="space-y-1">
               <label className="block text-xs font-bold text-slate-800 tracking-wide">
@@ -60,7 +72,7 @@ const LoginPage = () => {
               <input
                 type="email"
                 placeholder="name@company.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
+                className="w-full px-4 py-2 rounded-xl border border-slate-200 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
               />
             </div>
 
@@ -72,8 +84,8 @@ const LoginPage = () => {
               <div className="relative">
                 <input
                   type="password"
-                  placeholder="Enter your password"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white pr-10"
+                  placeholder="Create a strong password"
+                  className="w-full px-4 py-2 rounded-xl border border-slate-200 text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white pr-10"
                 />
                 <button
                   type="button"
@@ -88,27 +100,27 @@ const LoginPage = () => {
             {/* Action Button */}
             <Link
               to="/board"
-              className="w-full block text-center py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] !mt-4 no-underline"
+              className="w-full block text-center py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] !mt-3 no-underline"
             >
-              Get Started
+              Sign Up
             </Link>
           </form>
 
           {/* Social Divider */}
-          <div className="relative my-5 max-w-md flex items-center justify-center">
+          <div className="relative my-4 max-w-md flex items-center justify-center">
             <div className="border-t border-slate-200 w-full" />
             <span className="bg-white px-3 text-[11px] text-slate-400 font-medium absolute uppercase tracking-wider">
               or continue with
             </span>
           </div>
 
-          {/* Social Icons */}
-          <div className="flex gap-3 max-w-md">
+          {/* Google Button */}
+          <div className="flex justify-center max-w-md">
             <button
               type="button"
-              className="flex-1 h-9 bg-slate-100/80 hover:bg-slate-200/80 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
+              className="w-full h-9 bg-slate-100/80 hover:bg-slate-200/80 rounded-xl flex items-center justify-center transition-colors cursor-pointer"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
@@ -130,13 +142,13 @@ const LoginPage = () => {
           </div>
 
           {/* Footer Link */}
-          <p className="text-center max-w-md text-xs text-slate-500 mt-5">
-            Don't have an account?{" "}
+          <p className="text-center max-w-md text-xs text-slate-500 mt-4">
+            Already have an account?{" "}
             <Link
-              to="/signup"
+              to="/login"
               className="text-indigo-600 font-semibold hover:underline"
             >
-              Sign up
+              Sign in
             </Link>
           </p>
         </div>
@@ -146,4 +158,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;
