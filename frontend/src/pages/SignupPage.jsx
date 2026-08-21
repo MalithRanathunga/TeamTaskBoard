@@ -6,10 +6,10 @@ const SignupPage = () => {
   return (
     <div className="h-screen w-screen bg-white flex items-center justify-center p-3 sm:p-5 font-sans overflow-hidden">
       {/* Main Container */}
-      <div className="w-full h-full max-w-[1200px] flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch">
+      <div className="w-full h-full max-w-300 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch">
 
         {/* Left Visual Panel */}
-        <div className="lg:w-[45%] w-full h-full rounded-[28px] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-[#00d2ff] via-[#1a44e8] to-[#c084fc] shrink-0 shadow-lg">
+        <div className="lg:w-[45%] w-full h-full rounded-[28px] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden bg-linear-to-br from-[#00d2ff] via-[#1a44e8] to-[#c084fc] shrink-0 shadow-lg">
 
           {/* Top Decorative Asterisk */}
           <div className="z-10">
@@ -100,7 +100,7 @@ const SignupPage = () => {
             {/* Action Button */}
             <Link
               to="/board"
-              className="w-full block text-center py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] !mt-3 no-underline"
+              className="w-full block text-center py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] !mt-3 no-underline"
             >
               Sign Up
             </Link>

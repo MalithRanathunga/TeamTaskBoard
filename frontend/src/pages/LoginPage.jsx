@@ -1,15 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Eye, Kanban, Asterisk } from "lucide-react";
+import { Eye } from "lucide-react";
 
 const LoginPage = () => {
   return (
     <div className="h-screen w-screen bg-white flex items-center justify-center p-3 sm:p-5 font-sans overflow-hidden">
       {/* Main Container */}
-      <div className="w-full h-full max-w-[1200px] flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch">
+      <div className="w-full h-full max-w-300 flex flex-col lg:flex-row gap-6 lg:gap-10 items-stretch">
 
         {/* Left Visual Panel */}
-        <div className="lg:w-[45%] w-full h-full rounded-[28px] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-[#00d2ff] via-[#1a44e8] to-[#c084fc] shrink-0 shadow-lg">
+        <div className="lg:w-[45%] w-full h-full rounded-[28px] p-8 lg:p-10 flex flex-col justify-between relative overflow-hidden bg-linear-to-br from-[#00d2ff] via-[#1a44e8] to-[#c084fc] shrink-0 shadow-lg">
 
           {/* Top Decorative Asterisk */}
           <div className="z-10">
@@ -44,10 +44,10 @@ const LoginPage = () => {
 
           {/* Header */}
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Create an account
+            Sign in to your account
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm mt-1.5 mb-5 leading-relaxed max-w-md">
-            Get started in seconds to organize, track and deliver your team's projects.
+            Access your tasks, notes and projects anytime, anywhere.
           </p>
 
           {/* Static Form */}
@@ -88,9 +88,9 @@ const LoginPage = () => {
             {/* Action Button */}
             <Link
               to="/board"
-              className="w-full block text-center py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] !mt-4 no-underline"
+              className="w-full block text-center py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] mt-4! no-underline"
             >
-              Get Started
+              Sign In
             </Link>
           </form>
 
