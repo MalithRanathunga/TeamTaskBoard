@@ -1,30 +1,79 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Layout, Plus, Kanban, Users, Settings, LogOut, ChevronDown, CheckSquare, Sparkles } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Plus, Kanban, Settings, LogOut, ChevronDown, CheckSquare, X } from "lucide-react";
+import toast from "react-hot-toast";
+import API from "../api/axiosInstance";
+import { useAuth } from "../context/AuthContext";
 
-const Sidebar = () => {
-  const navigate = useNavigate();
-  const [activeBoard, setActiveBoard] = useState("board-1");
+const Sidebar = ({ activeBoardId, setActiveBoardId, setActiveBoardTitle }) => {
+  const { user, logout } = useAuth();
+  const [boards, setBoards] = useState([]);
+  const [isBoardModalOpen, setIsBoardModalOpen] = useState(false);
+  const [newBoardTitle, setNewBoardTitle] = useState("");
+  const [newBoardDesc, setNewBoardDesc] = useState("");
 
-  // Mock data
-  const boards = [
-    { id: "board-1", name: "Sprint 1 Workspace", count: 9 },
-    { id: "board-2", name: "UI/UX Redesign", count: 4 }
-  ];
+  const fetchBoards = async () => {
+    try {
+      const res = await API.get("/boards");
+      setBoards(res.data);
+      if (res.data.length > 0 && !activeBoardId) {
+        setActiveBoardId(res.data[0]._id);
+        if (setActiveBoardTitle) {
+          setActiveBoardTitle(res.data[0].title);
+        }
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to load boards");
+    }
+  };
 
-  const members = [
-    { id: "1", name: "Malith Ranathunga", initials: "MR", role: "Owner", online: true, color: "bg-blue-600" },
-    { id: "2", name: "Sarah Connor", initials: "SC", role: "Dev", online: true, color: "bg-indigo-600" },
-    { id: "3", name: "Alex Rivera", initials: "AR", role: "Designer", online: false, color: "bg-purple-600" },
-  ];
+  useEffect(() => {
+    fetchBoards();
+  }, []);
+
+  const handleSelectBoard = (board) => {
+    setActiveBoardId(board._id);
+    if (setActiveBoardTitle) {
+      setActiveBoardTitle(board.title);
+    }
+  };
+
+  const handleCreateBoard = async (e) => {
+    e.preventDefault();
+    if (!newBoardTitle.trim()) return;
+
+    try {
+      const res = await API.post("/boards", {
+        title: newBoardTitle,
+        description: newBoardDesc,
+      });
+      setBoards((prev) => [res.data, ...prev]);
+      setActiveBoardId(res.data._id);
+      if (setActiveBoardTitle) {
+        setActiveBoardTitle(res.data.title);
+      }
+      toast.success("Board created!");
+      setNewBoardTitle("");
+      setNewBoardDesc("");
+      setIsBoardModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create board");
+    }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <aside className="w-64 sm:w-72 h-screen bg-white border-r border-slate-200/80 flex flex-col justify-between p-4 shrink-0 select-none">
-
-      {/* Workspace Header */}
       <div className="flex flex-col gap-5">
-
-        {/* Workspace Brand Dropdown */}
+        {/* Workspace Header */}
         <div className="flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-linear-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-xs">
@@ -38,36 +87,19 @@ const Sidebar = () => {
           <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 shrink-0 transition-transform" />
         </div>
 
-        {/* Create Board */}
+        {/* Create Board Button */}
         <button
           type="button"
-          onClick={() => alert("Open Create Board Modal")}
+          onClick={() => setIsBoardModalOpen(true)}
           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-md hover:shadow-indigo-500/20 active:scale-[0.99] transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Create New Board</span>
         </button>
 
-        {/* Navigation Sections */}
+        {/* Sections */}
         <div className="flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-320px)] pr-1">
-
-          {/* Quick Views */}
-          <div>
-            <span className="px-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Views
-            </span>
-            <div className="mt-2 space-y-1">
-              <button
-                type="button"
-                className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <CheckSquare className="w-4 h-4 text-slate-400" />
-                <span>My Assigned Tasks</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Existing Boards List */}
+          {/* Boards List */}
           <div>
             <div className="flex items-center justify-between px-2 mb-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -76,12 +108,12 @@ const Sidebar = () => {
             </div>
             <div className="space-y-1">
               {boards.map((board) => {
-                const isActive = activeBoard === board.id;
+                const isActive = activeBoardId === board._id;
                 return (
                   <button
-                    key={board.id}
+                    key={board._id}
                     type="button"
-                    onClick={() => setActiveBoard(board.id)}
+                    onClick={() => handleSelectBoard(board)}
                     className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
                       ? "bg-indigo-50/80 text-indigo-700 font-bold"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -89,93 +121,33 @@ const Sidebar = () => {
                   >
                     <div className="flex items-center gap-2.5 truncate">
                       <Kanban className={`w-4 h-4 shrink-0 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
-                      <span className="truncate">{board.name}</span>
+                      <span className="truncate">{board.title}</span>
                     </div>
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold shrink-0 ${isActive
-                        ? "bg-indigo-100/70 text-indigo-700"
-                        : "bg-slate-100 text-slate-500"
-                        }`}
-                    >
-                      {board.count}
-                    </span>
                   </button>
                 );
               })}
             </div>
           </div>
-
-          {/* Board Members */}
-          <div>
-            <div className="flex items-center justify-between px-2 mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Board Members
-              </span>
-              <button
-                type="button"
-                onClick={() => alert("Open Invite Member Modal")}
-                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
-              >
-                + Invite
-              </button>
-            </div>
-            <div className="space-y-1">
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center justify-between px-2.5 py-1.5 rounded-xl hover:bg-slate-50 transition-colors"
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="relative shrink-0">
-                      <div className={`w-7 h-7 rounded-full ${member.color} text-white text-[10px] font-bold flex items-center justify-center`}>
-                        {member.initials}
-                      </div>
-                      <span
-                        className={`absolute bottom-0 right-0 w-2 h-2 rounded-full ring-2 ring-white ${member.online ? "bg-emerald-500" : "bg-slate-300"
-                          }`}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-slate-700 truncate leading-tight">
-                        {member.name}
-                      </p>
-                      <p className="text-[10px] text-slate-400 leading-tight">{member.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
         </div>
       </div>
 
-      {/* Settings & User Profile Card */}
+      {/* User Profile Footer */}
       <div className="border-t border-slate-100 pt-3 flex flex-col gap-2">
-        <button
-          type="button"
-          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer"
-        >
-          <Settings className="w-4 h-4 text-slate-400" />
-          <span>Workspace Settings</span>
-        </button>
-
-        {/* User Card */}
         <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-linear-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-              MR
+            <div className="w-8 h-8 rounded-full bg-linear-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 uppercase">
+              {getInitials(user?.name)}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-slate-800 truncate leading-tight">Malith R.</p>
-              <p className="text-[10px] text-slate-400 truncate leading-tight">malith@gmail.com</p>
+              <p className="text-xs font-bold text-slate-800 truncate leading-tight">{user?.name || "User"}</p>
+              <p className="text-[10px] text-slate-400 truncate leading-tight">{user?.email || "user@example.com"}</p>
             </div>
           </div>
 
           <button
             type="button"
             title="Sign Out"
-            onClick={() => navigate("/login")}
+            onClick={logout}
             className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-white rounded-lg transition-all cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
@@ -183,6 +155,64 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* Create Board Modal */}
+      {isBoardModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+              <h3 className="text-base font-bold text-slate-900">Create New Board</h3>
+              <button
+                type="button"
+                onClick={() => setIsBoardModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateBoard} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Board Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Sprint 1 Workspace"
+                  value={newBoardTitle}
+                  onChange={(e) => setNewBoardTitle(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
+                <textarea
+                  rows={2}
+                  placeholder="Brief board summary..."
+                  value={newBoardDesc}
+                  onChange={(e) => setNewBoardDesc(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none bg-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsBoardModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md hover:shadow-indigo-500/20 active:scale-95 transition-all"
+                >
+                  Create Board
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

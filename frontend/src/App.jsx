@@ -1,22 +1,38 @@
-import { Route, Routes } from "react-router-dom"
+import { Route, Routes, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-import LandingPage from "./pages/LandingPage"
-import SignupPage from "./pages/SignupPage"
-import LoginPage from "./pages/LoginPage"
-import HomePage from "./pages/HomePage"
+import LandingPage from "./pages/LandingPage";
+import SignupPage from "./pages/SignupPage";
+import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/" element={user ? <Navigate to="/home" replace /> : <LandingPage />} />
+      <Route path="/signup" element={user ? <Navigate to="/home" replace /> : <SignupPage />} />
+      <Route path="/login" element={user ? <Navigate to="/home" replace /> : <LoginPage />} />
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
+}
 
 function App() {
   return (
-    <div>
-
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/home" element={<HomePage />} />
-      </Routes>
-    </div>
-  )
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
