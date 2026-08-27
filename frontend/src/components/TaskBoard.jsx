@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Calendar, ChevronRight, ChevronLeft, X } from "lucide-react";
+import { Plus, Trash2, Calendar, ChevronRight, ChevronLeft, X, User } from "lucide-react";
 import toast from "react-hot-toast";
 import API from "../api/axiosInstance";
 
@@ -15,7 +15,17 @@ const priorityStyles = {
   low: "bg-sky-50 text-sky-600 border-sky-200/60",
 };
 
-const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
+const getInitials = (name) => {
+  if (!name) return "?";
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [targetColumn, setTargetColumn] = useState("todo");
@@ -24,16 +34,20 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState("medium");
+  const [newTaskAssignee, setNewTaskAssignee] = useState("");
   const [dueDate, setDueDate] = useState("");
 
+  const boardId = currentBoard?._id;
+  const boardMembers = currentBoard?.members || [];
+
   const fetchTasks = async () => {
-    if (!currentBoardId) {
+    if (!boardId) {
       setTasks([]);
       return;
     }
     setLoading(true);
     try {
-      const res = await API.get(`/tasks?boardId=${currentBoardId}`);
+      const res = await API.get(`/tasks?boardId=${boardId}`);
       setTasks(res.data);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load tasks");
@@ -44,23 +58,24 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
 
   useEffect(() => {
     fetchTasks();
-  }, [currentBoardId]);
+  }, [boardId]);
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
-    if (!currentBoardId) {
+    if (!boardId) {
       toast.error("Please create or select a board first");
       return;
     }
 
     try {
       const payload = {
-        boardId: currentBoardId,
+        boardId: boardId,
         title: newTaskTitle,
         description: newTaskDesc,
         status: targetColumn,
         priority: newTaskPriority,
+        assignee: newTaskAssignee || undefined,
         dueDate: dueDate || undefined,
       };
 
@@ -70,6 +85,7 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
 
       setNewTaskTitle("");
       setNewTaskDesc("");
+      setNewTaskAssignee("");
       setDueDate("");
       setIsModalOpen(false);
     } catch (error) {
@@ -111,7 +127,7 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
     }
   };
 
-  if (!currentBoardId) {
+  if (!boardId) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-2">
         <p className="text-sm font-semibold">No board selected.</p>
@@ -227,9 +243,18 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
                             <Calendar className="w-3 h-3 text-slate-400" />
                             {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No date"}
                           </span>
-                          <span className="text-[10px] font-bold text-slate-500">
-                            {task.createdBy?.name || "Member"}
-                          </span>
+
+                          {/* Real Assignee Badge */}
+                          {task.assignee ? (
+                            <div
+                              title={`Assigned to ${task.assignee.name}`}
+                              className="w-6 h-6 rounded-full bg-indigo-600 text-white text-[9px] font-bold flex items-center justify-center"
+                            >
+                              {getInitials(task.assignee.name)}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 italic">Unassigned</span>
+                          )}
                         </div>
                       </div>
                     ))
@@ -277,7 +302,7 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Implement user logout logic"
+                  placeholder="e.g. Implement WebSocket synchronization"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all bg-white"
@@ -288,7 +313,7 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
                 <label className="block text-xs font-bold text-slate-700 mb-1">Description</label>
                 <textarea
                   rows={3}
-                  placeholder="Add details, acceptance criteria, or endpoints..."
+                  placeholder="Add task details, acceptance criteria..."
                   value={newTaskDesc}
                   onChange={(e) => setNewTaskDesc(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none bg-white"
@@ -321,6 +346,23 @@ const TaskBoard = ({ currentBoardId, isModalOpen, setIsModalOpen }) => {
                     <option value="high">High</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Dynamic Assignee Dropdown */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Assignee</label>
+                <select
+                  value={newTaskAssignee}
+                  onChange={(e) => setNewTaskAssignee(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white"
+                >
+                  <option value="">Unassigned</option>
+                  {boardMembers.map((member) => (
+                    <option key={member._id} value={member._id}>
+                      {member.name} ({member.email})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

@@ -1,4 +1,5 @@
 import Board from "../models/Boards.js";
+import User from "../models/User.js";
 
 // getAllBoards controller
 export const getAllBoards = async (req, res) => {
@@ -55,9 +56,55 @@ export const createBoard = async (req, res) => {
     });
 
     const savedBoard = await board.save();
-    res.status(201).json(savedBoard);
+    const populatedBoard = await Board.findById(savedBoard._id)
+      .populate("owner", "name email")
+      .populate("members", "name email");
+
+    res.status(201).json(populatedBoard);
   } catch (error) {
     console.error("Error in createBoard controller:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// addMemberToBoard controller
+export const addMemberToBoard = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const userToInvite = await User.findOne({ email: email.toLowerCase() });
+    if (!userToInvite) {
+      return res.status(404).json({ message: "User with this email not found" });
+    }
+
+    const board = await Board.findById(req.params.id);
+    if (!board) {
+      return res.status(404).json({ message: "Board not found" });
+    }
+
+    // Check if user is already a member
+    const isAlreadyMember = board.members.some(
+      (memberId) => memberId.toString() === userToInvite._id.toString()
+    );
+
+    if (isAlreadyMember) {
+      return res.status(400).json({ message: "User is already a member of this board" });
+    }
+
+    board.members.push(userToInvite._id);
+    await board.save();
+
+    const updatedBoard = await Board.findById(board._id)
+      .populate("owner", "name email")
+      .populate("members", "name email");
+
+    res.status(200).json(updatedBoard);
+  } catch (error) {
+    console.error("Error in addMemberToBoard controller:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
