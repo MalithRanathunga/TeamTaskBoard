@@ -62,7 +62,7 @@ export const createTask = async (req, res) => {
       priority,
       dueDate,
       assignee,
-      createdBy,
+      createdBy: req.user._id,
       order,
     });
 
