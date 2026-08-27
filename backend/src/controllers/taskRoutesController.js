@@ -3,10 +3,37 @@ import Task from "../models/Tasks.js";
 // getAllTasks controller
 export const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.find()
+    const { boardId, status, priority, search } = req.query;
+
+    const filter = {};
+
+    // Filter by specific board
+    if (boardId) {
+      filter.boardId = boardId;
+    }
+
+    // Filter by status
+    if (status) {
+      filter.status = status;
+    }
+
+    // Filter by priority
+    if (priority) {
+      filter.priority = priority;
+    }
+
+    // Search by title or description
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const tasks = await Task.find(filter)
       .populate("assignee", "name email")
       .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
+      .sort({ order: 1, createdAt: -1 });
 
     res.status(200).json(tasks);
   } catch (error) {
