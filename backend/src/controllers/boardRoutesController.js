@@ -47,8 +47,8 @@ export const createBoard = async (req, res) => {
     const board = new Board({
       title,
       description,
-      owner,
-      members,
+      owner: req.user._id,
+      members: members && members.length > 0 ? members : [req.user._id],
       columns,
     });
 
