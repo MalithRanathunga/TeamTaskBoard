@@ -7,22 +7,18 @@ export const getAllTasks = async (req, res) => {
 
     const filter = {};
 
-    // Filter by specific board
     if (boardId) {
       filter.boardId = boardId;
     }
 
-    // Filter by status
     if (status) {
       filter.status = status;
     }
 
-    // Filter by priority
     if (priority) {
       filter.priority = priority;
     }
 
-    // Search by title or description
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -71,13 +67,12 @@ export const createTask = async (req, res) => {
       priority,
       dueDate,
       assignee,
-      createdBy,
       order,
     } = req.body;
 
-    if (!title || !boardId || !createdBy) {
+    if (!title || !boardId) {
       return res.status(400).json({
-        message: "title, boardId, and createdBy are required fields",
+        message: "title and boardId are required fields",
       });
     }
 
@@ -85,12 +80,12 @@ export const createTask = async (req, res) => {
       boardId,
       title,
       description,
-      status,
-      priority,
+      status: status || "todo",
+      priority: priority || "medium",
       dueDate,
-      assignee,
+      assignee: assignee || null,
       createdBy: req.user._id,
-      order,
+      order: order || 0,
     });
 
     const savedTask = await task.save();

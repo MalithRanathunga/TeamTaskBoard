@@ -3,7 +3,9 @@ import Board from "../models/Boards.js";
 // getAllBoards controller
 export const getAllBoards = async (req, res) => {
   try {
-    const boards = await Board.find()
+    const boards = await Board.find({
+      $or: [{ owner: req.user._id }, { members: req.user._id }],
+    })
       .populate("owner", "name email")
       .populate("members", "name email")
       .sort({ createdAt: -1 });
@@ -36,11 +38,11 @@ export const getBoardById = async (req, res) => {
 // createBoard controller
 export const createBoard = async (req, res) => {
   try {
-    const { title, description, owner, members, columns } = req.body;
+    const { title, description, members, columns } = req.body;
 
-    if (!title || !owner) {
+    if (!title) {
       return res.status(400).json({
-        message: "Title and owner are required fields",
+        message: "Title is a required field",
       });
     }
 
@@ -49,7 +51,7 @@ export const createBoard = async (req, res) => {
       description,
       owner: req.user._id,
       members: members && members.length > 0 ? members : [req.user._id],
-      columns,
+      columns: columns || ["todo", "in-progress", "done"],
     });
 
     const savedBoard = await board.save();
