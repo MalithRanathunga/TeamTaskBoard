@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Calendar, ChevronRight, ChevronLeft, X, User } from "lucide-react";
+import { Plus, Trash2, Calendar, ChevronRight, ChevronLeft, X, WifiOff } from "lucide-react";
 import toast from "react-hot-toast";
 import API from "../api/axiosInstance";
 
@@ -26,20 +26,80 @@ const getInitials = (name) => {
 };
 
 const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [targetColumn, setTargetColumn] = useState("todo");
-
-  // Form State
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDesc, setNewTaskDesc] = useState("");
-  const [newTaskPriority, setNewTaskPriority] = useState("medium");
-  const [newTaskAssignee, setNewTaskAssignee] = useState("");
-  const [dueDate, setDueDate] = useState("");
-
   const boardId = currentBoard?._id;
   const boardMembers = currentBoard?.members || [];
 
+  // 1. Initialize tasks from localStorage cache if available
+  const [tasks, setTasks] = useState(() => {
+    if (!boardId) return [];
+    const cached = localStorage.getItem(`cached_tasks_${boardId}`);
+    return cached ? JSON.parse(cached) : [];
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [targetColumn, setTargetColumn] = useState("todo");
+
+  // 2. Form state initialized from draft cache
+  const [newTaskTitle, setNewTaskTitle] = useState(() => {
+    return localStorage.getItem("draft_task_title") || "";
+  });
+  const [newTaskDesc, setNewTaskDesc] = useState(() => {
+    return localStorage.getItem("draft_task_desc") || "";
+  });
+  const [newTaskPriority, setNewTaskPriority] = useState(() => {
+    return localStorage.getItem("draft_task_priority") || "medium";
+  });
+  const [newTaskAssignee, setNewTaskAssignee] = useState(() => {
+    return localStorage.getItem("draft_task_assignee") || "";
+  });
+  const [dueDate, setDueDate] = useState(() => {
+    return localStorage.getItem("draft_task_duedate") || "";
+  });
+
+  // Track online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      toast.success("Back online! Syncing data...");
+      fetchTasks();
+    };
+    const handleOffline = () => {
+      setIsOffline(true);
+      toast.error("Network lost. Operating in offline view mode.");
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [boardId]);
+
+  // Persist form drafts to localStorage on change
+  useEffect(() => {
+    localStorage.setItem("draft_task_title", newTaskTitle);
+  }, [newTaskTitle]);
+
+  useEffect(() => {
+    localStorage.setItem("draft_task_desc", newTaskDesc);
+  }, [newTaskDesc]);
+
+  useEffect(() => {
+    localStorage.setItem("draft_task_priority", newTaskPriority);
+  }, [newTaskPriority]);
+
+  useEffect(() => {
+    localStorage.setItem("draft_task_assignee", newTaskAssignee);
+  }, [newTaskAssignee]);
+
+  useEffect(() => {
+    localStorage.setItem("draft_task_duedate", dueDate);
+  }, [dueDate]);
+
+  // Fetch tasks and update cache
   const fetchTasks = async () => {
     if (!boardId) {
       setTasks([]);
@@ -49,28 +109,52 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
     try {
       const res = await API.get(`/tasks?boardId=${boardId}`);
       setTasks(res.data);
+      localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(res.data));
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load tasks");
+      const cached = localStorage.getItem(`cached_tasks_${boardId}`);
+      if (cached) {
+        setTasks(JSON.parse(cached));
+        toast("Loaded cached tasks from offline storage", { icon: "💾" });
+      } else {
+        toast.error(error.response?.data?.message || "Failed to load tasks");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    const cached = localStorage.getItem(`cached_tasks_${boardId}`);
+    if (cached) {
+      setTasks(JSON.parse(cached));
+    }
     fetchTasks();
   }, [boardId]);
+
+  const clearDraft = () => {
+    setNewTaskTitle("");
+    setNewTaskDesc("");
+    setNewTaskPriority("medium");
+    setNewTaskAssignee("");
+    setDueDate("");
+    localStorage.removeItem("draft_task_title");
+    localStorage.removeItem("draft_task_desc");
+    localStorage.removeItem("draft_task_priority");
+    localStorage.removeItem("draft_task_assignee");
+    localStorage.removeItem("draft_task_duedate");
+  };
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
     if (!boardId) {
-      toast.error("Please create or select a board first");
+      toast.error("Please select a board first");
       return;
     }
 
     try {
       const payload = {
-        boardId: boardId,
+        boardId,
         title: newTaskTitle,
         description: newTaskDesc,
         status: targetColumn,
@@ -80,13 +164,12 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
       };
 
       const res = await API.post("/tasks", payload);
-      setTasks((prev) => [res.data, ...prev]);
+      const updatedList = [res.data, ...tasks];
+      setTasks(updatedList);
+      localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updatedList));
       toast.success("Task created!");
 
-      setNewTaskTitle("");
-      setNewTaskDesc("");
-      setNewTaskAssignee("");
-      setDueDate("");
+      clearDraft();
       setIsModalOpen(false);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to create task");
@@ -103,16 +186,17 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
     if (nextIndex < 0 || nextIndex >= statusOrder.length) return;
 
     const newStatus = statusOrder[nextIndex];
-
-    // Optimistic UI update
-    setTasks((prev) =>
-      prev.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
+    const updatedTasks = tasks.map((t) =>
+      t._id === taskId ? { ...t, status: newStatus } : t
     );
+
+    setTasks(updatedTasks);
+    localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updatedTasks));
 
     try {
       await API.put(`/tasks/${taskId}`, { status: newStatus });
     } catch (error) {
-      toast.error("Failed to update status");
+      toast.error("Failed to update status on server");
       fetchTasks();
     }
   };
@@ -120,7 +204,9 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
   const handleDeleteTask = async (taskId) => {
     try {
       await API.delete(`/tasks/${taskId}`);
-      setTasks((prev) => prev.filter((t) => t._id !== taskId));
+      const updatedTasks = tasks.filter((t) => t._id !== taskId);
+      setTasks(updatedTasks);
+      localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updatedTasks));
       toast.success("Task deleted");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to delete task");
@@ -137,8 +223,16 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
   }
 
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden">
-      {loading ? (
+    <div className="h-full w-full flex flex-col overflow-hidden relative">
+      {/* Offline Status Warning Bar */}
+      {isOffline && (
+        <div className="bg-amber-500 text-white px-4 py-1 text-xs font-semibold flex items-center justify-center gap-2 shadow-xs shrink-0">
+          <WifiOff className="w-3.5 h-3.5" />
+          <span>You are currently offline. Displaying cached local data.</span>
+        </div>
+      )}
+
+      {loading && tasks.length === 0 ? (
         <div className="h-full flex items-center justify-center">
           <span className="loading loading-spinner text-indigo-600"></span>
         </div>
@@ -244,7 +338,6 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
                             {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No date"}
                           </span>
 
-                          {/* Real Assignee Badge */}
                           {task.assignee ? (
                             <div
                               title={`Assigned to ${task.assignee.name}`}
@@ -278,7 +371,7 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
         </div>
       )}
 
-      {/* Task Creation Modal */}
+      {/* Task Creation Modal with Draft Persistence */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-150">
@@ -298,7 +391,12 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
 
             <form onSubmit={handleCreateTask} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Task Title</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="block text-xs font-bold text-slate-700">Task Title</label>
+                  {newTaskTitle && (
+                    <span className="text-[10px] text-emerald-600 font-semibold">Draft autosaved</span>
+                  )}
+                </div>
                 <input
                   type="text"
                   required
@@ -348,7 +446,6 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
                 </div>
               </div>
 
-              {/* Dynamic Assignee Dropdown */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Assignee</label>
                 <select
@@ -375,20 +472,30 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                  onClick={clearDraft}
+                  className="text-xs text-slate-400 hover:text-red-500 transition-colors"
                 >
-                  Cancel
+                  Clear Draft
                 </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md hover:shadow-indigo-500/20 active:scale-95 transition-all"
-                >
-                  Save Task
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md hover:shadow-indigo-500/20 active:scale-95 transition-all"
+                  >
+                    Save Task
+                  </button>
+                </div>
               </div>
             </form>
           </div>
