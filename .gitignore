@@ -3,7 +3,10 @@ node_modules/
 
 # Environment Variables & Local Overrides
 .env
-*.env.local
+.env.*
+*.env
+**/.env
+**/.env.*
 *.local
 
 # Build output & Logs
