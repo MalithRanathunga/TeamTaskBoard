@@ -81,7 +81,7 @@ const Sidebar = ({ activeBoard, setActiveBoard }) => {
       const res = await API.post(`/boards/${activeBoard._id}/members`, {
         email: inviteEmail.trim(),
       });
-      // Update active board and boards list with new member list
+      // Update active board and boards list
       setActiveBoard(res.data);
       setBoards((prev) =>
         prev.map((b) => (b._id === res.data._id ? res.data : b))
@@ -227,7 +227,7 @@ const Sidebar = ({ activeBoard, setActiveBoard }) => {
         </div>
       </div>
 
-      {/* Create Board Modal */}
+      {/* Create Board */}
       {isBoardModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-150">
@@ -286,7 +286,7 @@ const Sidebar = ({ activeBoard, setActiveBoard }) => {
         </div>
       )}
 
-      {/* Invite Member Modal */}
+      {/* Invite Member */}
       {isInviteModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-150">

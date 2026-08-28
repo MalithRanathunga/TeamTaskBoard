@@ -30,7 +30,6 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
   const boardId = currentBoard?._id;
   const boardMembers = currentBoard?.members || [];
 
-  // 1. Initialize tasks from localStorage cache if available
   const [tasks, setTasks] = useState(() => {
     if (!boardId) return [];
     const cached = localStorage.getItem(`cached_tasks_${boardId}`);
@@ -41,7 +40,6 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [targetColumn, setTargetColumn] = useState("todo");
 
-  // 2. Form state initialized from draft cache
   const [newTaskTitle, setNewTaskTitle] = useState(() => {
     return localStorage.getItem("draft_task_title") || "";
   });
@@ -132,11 +130,9 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
     fetchTasks();
   }, [boardId]);
 
-  // 3. Real-time WebSocket Listeners for Instant Synchronization
   useEffect(() => {
     if (!boardId) return;
 
-    // Join current board's socket room
     socket.emit("join_board", boardId);
 
     // Live Task Created
@@ -151,7 +147,7 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
       }
     };
 
-    // Live Task Updated (status moved, title changed, etc.)
+    // Live Task Updated
     const handleTaskUpdated = (updatedTask) => {
       if (updatedTask.boardId === boardId) {
         setTasks((prev) => {
@@ -423,7 +419,7 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
         </div>
       )}
 
-      {/* Task Creation Modal with Draft Persistence */}
+      {/* Task Creation */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in-95 duration-150">

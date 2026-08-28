@@ -27,7 +27,6 @@ const Navbar = ({ activeBoard, onAddTaskClick }) => {
 
   return (
     <header className="h-16 w-full bg-white border-b border-slate-200/80 px-6 flex items-center justify-between shrink-0 select-none">
-      {/* Board Title & Live Status */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-lg font-black text-indigo-600 leading-none">✱</span>
@@ -56,9 +55,8 @@ const Navbar = ({ activeBoard, onAddTaskClick }) => {
         </div>
       </div>
 
-      {/* Members & Actions */}
       <div className="flex items-center gap-3 shrink-0">
-        {/* Active Members Avatars */}
+        {/* Members Avatars */}
         <div className="hidden lg:flex items-center -space-x-2 mr-1">
           {members.slice(0, 4).map((member, index) => (
             <div

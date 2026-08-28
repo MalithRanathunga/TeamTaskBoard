@@ -42,7 +42,7 @@ export const createUser = async (req, res) => {
     const user = new User({ name, email, password, role });
     await user.save();
 
-    // Exclude password from the response object
+    // Exclude password from the response
     const userResponse = user.toObject();
     delete userResponse.password;
 

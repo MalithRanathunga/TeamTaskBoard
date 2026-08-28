@@ -7,8 +7,7 @@ const generateToken = (id) => {
   });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
+// register controller
 export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -37,8 +36,7 @@ export const register = async (req, res) => {
   }
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /api/auth/login
+// login controller
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,8 +70,7 @@ export const login = async (req, res) => {
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/me
+// getMe controller
 export const getMe = async (req, res) => {
   res.status(200).json(req.user);
 };

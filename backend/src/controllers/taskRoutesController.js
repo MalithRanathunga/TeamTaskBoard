@@ -1,13 +1,11 @@
 import Task from "../models/Tasks.js";
 import { getIO } from "../socket.js";
 
-// Helper to broadcast safely without crashing if socket is uninitialized during tests
 const broadcastToBoard = (boardId, eventName, data) => {
   try {
     const io = getIO();
     io.to(boardId.toString()).emit(eventName, data);
   } catch (err) {
-    // Suppress error during test environments
   }
 };
 

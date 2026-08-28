@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 import authRoutes from "../src/routes/authRoute.js";
 import User from "../src/models/User.js";
 
-// Force Node to use Google DNS for Atlas SRV resolution
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
 dotenv.config();
 
@@ -28,7 +27,6 @@ beforeAll(async () => {
     });
   }
 
-  // Clean up existing test users
   await User.deleteMany({ email: /test_integration.*@example\.com/i });
 }, 30000);
 
@@ -91,7 +89,6 @@ describe("Auth API Integration Tests", () => {
         password: "wrongpassword",
       });
 
-    // Matches controller returning 401 Unauthorized
     expect([400, 401]).toContain(res.statusCode);
     expect(res.body.message).toMatch(/invalid credentials|invalid email or password/i);
   });
