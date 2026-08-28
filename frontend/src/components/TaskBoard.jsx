@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Calendar, ChevronRight, ChevronLeft, X, WifiOff } from "lucide-react";
+import { socket } from "../services/socket";
 import toast from "react-hot-toast";
 import API from "../api/axiosInstance";
 
@@ -131,6 +132,57 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
     fetchTasks();
   }, [boardId]);
 
+  // 3. Real-time WebSocket Listeners for Instant Synchronization
+  useEffect(() => {
+    if (!boardId) return;
+
+    // Join current board's socket room
+    socket.emit("join_board", boardId);
+
+    // Live Task Created
+    const handleTaskCreated = (newTask) => {
+      if (newTask.boardId === boardId) {
+        setTasks((prev) => {
+          if (prev.some((t) => t._id === newTask._id)) return prev;
+          const updated = [newTask, ...prev];
+          localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updated));
+          return updated;
+        });
+      }
+    };
+
+    // Live Task Updated (status moved, title changed, etc.)
+    const handleTaskUpdated = (updatedTask) => {
+      if (updatedTask.boardId === boardId) {
+        setTasks((prev) => {
+          const updated = prev.map((t) => (t._id === updatedTask._id ? updatedTask : t));
+          localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updated));
+          return updated;
+        });
+      }
+    };
+
+    // Live Task Deleted
+    const handleTaskDeleted = ({ taskId }) => {
+      setTasks((prev) => {
+        const updated = prev.filter((t) => t._id !== taskId);
+        localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updated));
+        return updated;
+      });
+    };
+
+    socket.on("task_created", handleTaskCreated);
+    socket.on("task_updated", handleTaskUpdated);
+    socket.on("task_deleted", handleTaskDeleted);
+
+    return () => {
+      socket.emit("leave_board", boardId);
+      socket.off("task_created", handleTaskCreated);
+      socket.off("task_updated", handleTaskUpdated);
+      socket.off("task_deleted", handleTaskDeleted);
+    };
+  }, [boardId]);
+
   const clearDraft = () => {
     setNewTaskTitle("");
     setNewTaskDesc("");
@@ -164,7 +216,7 @@ const TaskBoard = ({ currentBoard, isModalOpen, setIsModalOpen }) => {
       };
 
       const res = await API.post("/tasks", payload);
-      const updatedList = [res.data, ...tasks];
+      const updatedList = [res.data, ...tasks.filter((t) => t._id !== res.data._id)];
       setTasks(updatedList);
       localStorage.setItem(`cached_tasks_${boardId}`, JSON.stringify(updatedList));
       toast.success("Task created!");

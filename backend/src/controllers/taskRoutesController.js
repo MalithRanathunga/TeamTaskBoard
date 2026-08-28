@@ -1,23 +1,24 @@
 import Task from "../models/Tasks.js";
+import { getIO } from "../socket.js";
 
-// getAllTasks controller
+// Helper to broadcast safely without crashing if socket is uninitialized during tests
+const broadcastToBoard = (boardId, eventName, data) => {
+  try {
+    const io = getIO();
+    io.to(boardId.toString()).emit(eventName, data);
+  } catch (err) {
+    // Suppress error during test environments
+  }
+};
+
 export const getAllTasks = async (req, res) => {
   try {
     const { boardId, status, priority, search } = req.query;
-
     const filter = {};
 
-    if (boardId) {
-      filter.boardId = boardId;
-    }
-
-    if (status) {
-      filter.status = status;
-    }
-
-    if (priority) {
-      filter.priority = priority;
-    }
+    if (boardId) filter.boardId = boardId;
+    if (status) filter.status = status;
+    if (priority) filter.priority = priority;
 
     if (search) {
       filter.$or = [
@@ -38,16 +39,13 @@ export const getAllTasks = async (req, res) => {
   }
 };
 
-// getTaskById controller
 export const getTaskById = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id)
       .populate("assignee", "name email")
       .populate("createdBy", "name email");
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    if (!task) return res.status(404).json({ message: "Task not found" });
 
     res.status(200).json(task);
   } catch (error) {
@@ -56,24 +54,12 @@ export const getTaskById = async (req, res) => {
   }
 };
 
-// createTask controller (Populated before returning)
 export const createTask = async (req, res) => {
   try {
-    const {
-      boardId,
-      title,
-      description,
-      status,
-      priority,
-      dueDate,
-      assignee,
-      order,
-    } = req.body;
+    const { boardId, title, description, status, priority, dueDate, assignee, order } = req.body;
 
     if (!title || !boardId) {
-      return res.status(400).json({
-        message: "title and boardId are required fields",
-      });
+      return res.status(400).json({ message: "title and boardId are required fields" });
     }
 
     const task = new Task({
@@ -90,10 +76,12 @@ export const createTask = async (req, res) => {
 
     const savedTask = await task.save();
 
-    // Populate assignee and createdBy details
     const populatedTask = await Task.findById(savedTask._id)
       .populate("assignee", "name email")
       .populate("createdBy", "name email");
+
+    // Real-time broadcast to board members
+    broadcastToBoard(boardId, "task_created", populatedTask);
 
     res.status(201).json(populatedTask);
   } catch (error) {
@@ -102,7 +90,6 @@ export const createTask = async (req, res) => {
   }
 };
 
-// updateTask controller
 export const updateTask = async (req, res) => {
   try {
     const updatedTask = await Task.findByIdAndUpdate(
@@ -113,9 +100,10 @@ export const updateTask = async (req, res) => {
       .populate("assignee", "name email")
       .populate("createdBy", "name email");
 
-    if (!updatedTask) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
+
+    // Real-time broadcast to board members
+    broadcastToBoard(updatedTask.boardId, "task_updated", updatedTask);
 
     res.status(200).json(updatedTask);
   } catch (error) {
@@ -124,14 +112,14 @@ export const updateTask = async (req, res) => {
   }
 };
 
-// deleteTask controller
 export const deleteTask = async (req, res) => {
   try {
     const deletedTask = await Task.findByIdAndDelete(req.params.id);
 
-    if (!deletedTask) {
-      return res.status(404).json({ message: "Task not found" });
-    }
+    if (!deletedTask) return res.status(404).json({ message: "Task not found" });
+
+    // Real-time broadcast to board members
+    broadcastToBoard(deletedTask.boardId, "task_deleted", { taskId: deletedTask._id });
 
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
