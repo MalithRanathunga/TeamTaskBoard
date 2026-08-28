@@ -56,7 +56,7 @@ export const getTaskById = async (req, res) => {
   }
 };
 
-// createTask controller
+// createTask controller (Populated before returning)
 export const createTask = async (req, res) => {
   try {
     const {
@@ -89,7 +89,13 @@ export const createTask = async (req, res) => {
     });
 
     const savedTask = await task.save();
-    res.status(201).json(savedTask);
+
+    // Populate assignee and createdBy details
+    const populatedTask = await Task.findById(savedTask._id)
+      .populate("assignee", "name email")
+      .populate("createdBy", "name email");
+
+    res.status(201).json(populatedTask);
   } catch (error) {
     console.error("Error in createTask controller:", error);
     res.status(500).json({ message: "Internal server error" });
