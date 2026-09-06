@@ -98,8 +98,6 @@ Before running SyncBoard, make sure the following are installed on your system:
 | Docker         | Optional            |
 | Docker Compose | Optional            |
 
-> **Note:** Docker and Docker Compose are only required if you want to run the application using containers.
-
 ---
 
 ## ⚙️ Getting Started
@@ -141,8 +139,6 @@ Create a `.env` file inside the `frontend` directory:
 ```text
 VITE_API_BASE_URL=http://localhost:5001/api
 ```
-
-> **Security:** Never commit your `.env` files or expose your MongoDB password and JWT secret publicly.
 
 ---
 
@@ -299,8 +295,6 @@ SyncBoard uses several security mechanisms to protect user accounts and applicat
 * Environment variables for sensitive configuration
 * Protected API endpoints
 * Workspace membership controls
-
-> **Important:** Do not upload `.env` files containing database credentials, passwords, or JWT secrets to GitHub.
 
 ---
 
